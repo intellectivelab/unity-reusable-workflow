@@ -157,3 +157,5 @@ jobs:
                   "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases" \
                   -d "${REQUEST_DATA}"
           fi
+        env:
+          WORKFLOW_TOKEN: ${{ secrets.GITHUB_TOKEN }}
