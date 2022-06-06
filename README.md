@@ -30,5 +30,12 @@ wfrelease-<major.minor.increment>-<timestamp>
 Where <timestamp> has ISO8601 date format like below:
 ```2022-06-06T14_59_23Z```
 
+Manually push initial tag:
+```
+TS=$(TZ=GMT date +"%Y-%m-%dT%H_%M_%SZ")
+git tag "wfrelease-${INITAL_VERSION}-${TS}"
+git push --tags
+```
+
 # Note for implementors
 Use secrets to hold any sensitive data - urls, usernames, passwords etc.  
