@@ -149,7 +149,7 @@ jobs:
             --arg name "CI Release: $RELEASE_VERSION" \
             --arg desc "Release $RELEASE_VERSION by release flow" \
             '{tag_name: $tag, target_commitish: $branch, name: $name, body: $desc, "draft": false, "prerelease": false }')
-
+            echo "trigger release ${GITHUB_REPOSITORY} ${REQUEST_DATA}"
             curl -s -X POST \
                   -H "Authorization: bearer ${WORKFLOW_TOKEN}" \
                   -H "Content-Type:application/json" \
