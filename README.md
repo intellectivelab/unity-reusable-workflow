@@ -22,5 +22,13 @@ Supports following release types (_type_ input variable):
   Numbered release with use the latest minor versions of dependencies.
   Creates github release with '''wfrelease-<major.minor.increment>-<timestamp>''' tag.
 
+## initial tags
+To start working with flow one need to define initial wfrelease tag:
+```
+wfrelease-<major.minor.increment>-<timestamp>
+```
+Where <timestamp> has ISO8601 date format like below:
+```2022-06-06T14_59_23Z```
+
 # Note for implementors
 Use secrets to hold any sensitive data - urls, usernames, passwords etc.  
