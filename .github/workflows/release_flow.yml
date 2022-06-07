@@ -7,9 +7,8 @@ on:
         required: true
         type: string
       javaVersion:
-        description: 'Jdk for maven'
+        description: 'javaVersion for maven'
         required: true
-        default: 11
         type: string
 jobs:
   release:
@@ -17,8 +16,8 @@ jobs:
     steps:
       - name: Inputs
         run: |
-          echo "Input type ${{ github.event.inputs.type }}"
-          echo "Input jdk ${{ github.event.inputs.javaVersion }}"
+          echo "Input type '${{ github.event.inputs.type }}'"
+          echo "Input javaVersion '${{ github.event.inputs.javaVersion }}'"
 
       - name: Checkout
         uses: actions/checkout@v3
