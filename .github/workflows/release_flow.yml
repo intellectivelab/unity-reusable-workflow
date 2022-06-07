@@ -8,7 +8,7 @@ on:
         type: string
       java-version:
         description: 'Java version for running maven'
-        required: true
+        required: false
         type: string
 jobs:
   release:
@@ -19,15 +19,24 @@ jobs:
           echo "Input type '${{ github.event.inputs.type }}'"
           echo "Input javaVersion '${{ github.event.inputs.java-version }}'"
 
+      - name: With default java version
+        id: java_version
+        run: |
+          if [ -z "${{ github.event.inputs.java-version }}" ]; then
+            echo ::set-output name=JAVA_VERSION::11
+          else
+            echo ::set-output name=JAVA_VERSION::${{ github.event.inputs.java-version }}
+          fi
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Set up JDK ${{ github.event.inputs.java-version }}
+      - name: Set up JDK ${{ steps.java_version.outputs.JAVA_VERSION }}
         uses: actions/setup-java@v1
         with:
-          java-version: ${{ github.event.inputs.java-version }}
+          java-version: ${{ steps.java_version.outputs.JAVA_VERSION }}
 
       - name: Cache dependencies
         uses: actions/cache@v2
