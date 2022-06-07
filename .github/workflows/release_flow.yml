@@ -98,25 +98,52 @@ jobs:
           echo ::set-output name=VALUE::${TAG}
           echo ::set-output name=NEXT_VERSION::${NEXT_VERSION}
 
+      - name: Check maven options
+        id: mvn_options
+        run: |
+          echo ::set-output name=HAS_DEV_NO_TESTS::$(mvn help:all-profiles|grep "Profile Id: dev-no-tests"|wc -l)
+          echo ::set-output name=BOM_MODULE::$(mvn help:evaluate  -Dexpression=project.modules[0] -q -DforceStdout| grep -e "-bom$")
+
       - name: Set release version
         run: |
           RELEASE_TYPE="${{ github.event.inputs.type }}"
+          BOM_MODULE="${{ steps.mvn_options.outputs.BOM_MODULE }}"
           if [ "${RELEASE_TYPE}" != "Snapshot" ]; then
             mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${{ steps.tag_name.outputs.NEXT_VERSION }}
+            if [[ ! -z "${BOM_MODULE}" ]]; then
+              mvn versions:set -f "./${BOM_MODULE}/pom.xml" -DgenerateBackupPoms=false -DnewVersion=${{ steps.tag_name.outputs.NEXT_VERSION }}
+            fi
           fi
       - name: Set dependencies
         run: |
           RELEASE_TYPE="${{ github.event.inputs.type }}"
+          BOM_MODULE="${{ steps.mvn_options.outputs.BOM_MODULE }}"
           if [ "${RELEASE_TYPE}" == "Release" ]; then
-            mvn versions:use-latest-versions -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
+            mvn versions:use-latest-versions \
+              -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
               -DallowSnapshots=false
+            if [[ ! -z "${BOM_MODULE}" ]]; then
+              mvn versions:set -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
+                -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
+                -DallowSnapshots=false
+            fi
           elif [ "${RELEASE_TYPE}" == "Patch Release" ]; then
             mvn versions:use-latest-versions -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
               -DallowSnapshots=false -DallowMajorUpdates=false -DallowMinurUpdates=false -DallowIncrementalUpdates=true
+            if [[ ! -z "${BOM_MODULE}" ]]; then
+              mvn versions:set -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
+                -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
+                -DallowSnapshots=false -DallowMajorUpdates=false -DallowMinurUpdates=false -DallowIncrementalUpdates=true
+            fi
           fi
       - name: Build release
-        run: mvn -B deploy -DskipTests=true
-
+        run: |
+          HAS_DEV_NO_TESTS="${{ steps.mvn_options.outputs.HAS_DEV_NO_TESTS }}"
+          if [ "${HAS_DEV_NO_TESTS}" -eq 0 ]]; then
+            mvn -B deploy -DskipTests=true
+          else
+            mvn -B deploy -P dev-no-tests
+          fi
       - name: Set git info
         run: |
           git config --global user.name 'Intellective Workflow'
