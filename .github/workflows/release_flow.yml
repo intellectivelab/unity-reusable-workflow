@@ -6,6 +6,11 @@ on:
         description: 'Action type'
         required: true
         type: string
+      jdk:
+        description: 'Jdk for maven'
+        required: true
+        default: 11
+        type: string
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -18,7 +23,7 @@ jobs:
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: ${{ github.event.inputs.jdk }}
 
       - name: Cache dependencies
         uses: actions/cache@v2
