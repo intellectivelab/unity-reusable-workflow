@@ -6,7 +6,7 @@ on:
         description: 'Action type'
         required: true
         type: string
-      jdk:
+      javaVersion:
         description: 'Jdk for maven'
         required: true
         default: 11
@@ -18,17 +18,17 @@ jobs:
       - name: Inputs
         run |
         echo "Input type - '${{ github.event.inputs.type }}'"
-        echo "Input jdk - '${{ github.event.inputs.jdk }}'"
+        echo "Input jdk - '${{ github.event.inputs.javaVersion }}'"
 
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Set up JDK ${{ github.event.inputs.jdk }}
+      - name: Set up JDK ${{ github.event.inputs.javaVersion }}
         uses: actions/setup-java@v1
         with:
-          java-version: ${{ github.event.inputs.jdk }}
+          java-version: ${{ github.event.inputs.javaVersion }}
 
       - name: Cache dependencies
         uses: actions/cache@v2
