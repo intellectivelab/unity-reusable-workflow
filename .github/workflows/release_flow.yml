@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 11
+      - name: Set up JDK ${{ github.event.inputs.jdk }}
         uses: actions/setup-java@v1
         with:
           java-version: ${{ github.event.inputs.jdk }}
