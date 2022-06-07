@@ -17,8 +17,8 @@ jobs:
     steps:
       - name: Inputs
         run: |
-        echo "Input type ${{ github.event.inputs.type }}"
-        echo "Input jdk ${{ github.event.inputs.javaVersion }}"
+          echo "Input type ${{ github.event.inputs.type }}"
+          echo "Input jdk ${{ github.event.inputs.javaVersion }}"
 
       - name: Checkout
         uses: actions/checkout@v3
