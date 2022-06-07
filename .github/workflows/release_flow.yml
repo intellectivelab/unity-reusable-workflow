@@ -7,7 +7,7 @@ on:
         required: true
         type: string
       java-version:
-        description: 'javaVersion for maven'
+        description: 'Java version for running maven'
         required: true
         type: string
 jobs:
@@ -102,7 +102,7 @@ jobs:
         run: |
           RELEASE_TYPE="${{ github.event.inputs.type }}"
           if [ "${RELEASE_TYPE}" != "Snapshot" ]; then
-            mvn versions:set -DnewVersion=${{ steps.tag_name.outputs.NEXT_VERSION }}
+            mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${{ steps.tag_name.outputs.NEXT_VERSION }}
           fi
       - name: Set dependencies
         run: |
@@ -130,7 +130,7 @@ jobs:
             if [ -z "$(git status --porcelain=v1 2>/dev/null)" ]; then
               echo "no changes to commit"
             else
-              git commit -m "Releasing ${NEXT_VERSION}"
+              git commit -a -m "Releasing ${NEXT_VERSION}"
             fi
           fi
 
