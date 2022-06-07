@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Inputs
-        run |
+        run: |
         echo "Input type - '${{ github.event.inputs.type }}'"
         echo "Input jdk - '${{ github.event.inputs.javaVersion }}'"
 
