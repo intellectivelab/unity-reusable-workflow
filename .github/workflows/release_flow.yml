@@ -164,7 +164,7 @@ jobs:
       - name: Build Docker
         run: |
           if [ -f "./publish-release.sh" ]; then
-            mvn spring-boot:build-image
+            mvn spring-boot:build-image -DskipTests=true -Dmaven.test.skip=true
             ./publish-release.sh
           else
             echo "No docker images" >> $GITHUB_STEP_SUMMARY
