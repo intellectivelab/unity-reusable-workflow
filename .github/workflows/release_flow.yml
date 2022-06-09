@@ -153,10 +153,25 @@ jobs:
         run: |
           HAS_DEV_NO_TESTS="${{ steps.mvn_options.outputs.HAS_DEV_NO_TESTS }}"
           if [ "${HAS_DEV_NO_TESTS}" -eq 0 ]; then
-            mvn -B deploy -DskipTests=true
+            mvn -B deploy -DskipTests=true -Dmaven.test.skip=true
           else
-            mvn -B deploy -P dev-no-tests
+            mvn -B deploy -P dev-no-tests -Dmaven.test.skip=true -DskipTests=true
           fi
+
+      -name: Build Docker
+        run: |
+          if [ -f "./publish_release.sh" ]; then
+            mvn spring-boot:build-image
+            ./publish_release.sh
+          else
+            echo "No docker images" >> $GITHUB_STEP_SUMMARY
+          fi
+        env:
+          DOCKER_REGISTRY: 'registry.intellective.com'
+          DOCKER_USER: ${{ secrets.NEXUS_USER }}
+          DOCKER_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          VERSION: ${{ steps.tag_name.outputs.NEXT_VERSION }}
+
       - name: Set git info
         run: |
           git config --global user.name 'Intellective Workflow'
