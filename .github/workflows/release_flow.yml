@@ -152,7 +152,7 @@ jobs:
       - name: Build release
         run: |
           HAS_DEV_NO_TESTS="${{ steps.mvn_options.outputs.HAS_DEV_NO_TESTS }}"
-          if [ "${HAS_DEV_NO_TESTS}" -eq 0 ]]; then
+          if [ "${HAS_DEV_NO_TESTS}" -eq 0 ]; then
             mvn -B deploy -DskipTests=true
           else
             mvn -B deploy -P dev-no-tests
