@@ -163,11 +163,19 @@ jobs:
 
       - name: Build Docker
         run: |
-          if [ -f "./publish-release.sh" ]; then
+          BRANCH_NAME="${{ steps.branch_name.outputs.VALUE }}"
+          if [ "${BRANCH_NAME} == "dev" ]; then
+            if [ -f "./publish.sh" ]; then
+              mvn spring-boot:build-image -DskipTests=true -Dmaven.test.skip=true
+              ./publish.sh
+            else
+              echo "No docker images publish for ${BRANCH_NAME}" >> $GITHUB_STEP_SUMMARY
+            fi
+          elif [ -f "./publish-release.sh" ]; then
             mvn spring-boot:build-image -DskipTests=true -Dmaven.test.skip=true
             ./publish-release.sh
           else
-            echo "No docker images" >> $GITHUB_STEP_SUMMARY
+            echo "No docker images publish for ${BRANCH_NAME}" >> $GITHUB_STEP_SUMMARY
           fi
         env:
           DOCKER_REGISTRY: 'registry.intellective.com'
