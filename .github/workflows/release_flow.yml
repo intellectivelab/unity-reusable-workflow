@@ -127,6 +127,7 @@ jobs:
               mvn versions:set -f "./${BOM_MODULE}/pom.xml" -DgenerateBackupPoms=false -DnewVersion=${{ steps.tag_name.outputs.NEXT_VERSION }}
             fi
           fi
+
       - name: Set dependencies
         run: |
           RELEASE_TYPE="${{ github.event.inputs.type }}"
@@ -149,6 +150,7 @@ jobs:
                 -DallowSnapshots=false -DallowMajorUpdates=false -DallowMinurUpdates=false -DallowIncrementalUpdates=true
             fi
           fi
+
       - name: Build release
         run: |
           HAS_DEV_NO_TESTS="${{ steps.mvn_options.outputs.HAS_DEV_NO_TESTS }}"
@@ -158,7 +160,7 @@ jobs:
             mvn -B deploy -P dev-no-tests -Dmaven.test.skip=true -DskipTests=true
           fi
 
-      -name: Build Docker
+      - name: Build Docker
         run: |
           if [ -f "./publish_release.sh" ]; then
             mvn spring-boot:build-image
