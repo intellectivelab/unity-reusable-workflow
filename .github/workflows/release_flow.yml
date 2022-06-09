@@ -54,6 +54,7 @@ jobs:
           if [ "${BRANCH_NAME}" == "dev" ]; then
             if [ "${RELEASE_TYPE}" == "Snapshot" ]; then
               TAG="snapshot-${TS}"
+              NEXT_VERSION="$(mvn help:evaluate  -Dexpression=project.version -q -DforceStdout)"
             elif [ "${RELEASE_TYPE}" == "QA Release" ]; then
               REL_VERSION=$(git tag -l --sort=-v:refname | grep "^wfrelease-" | head -n 1|\
                 sed -E "s/wfrelease-([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)-.*/\1/g")
@@ -162,9 +163,9 @@ jobs:
 
       - name: Build Docker
         run: |
-          if [ -f "./publish_release.sh" ]; then
+          if [ -f "./publish-release.sh" ]; then
             mvn spring-boot:build-image
-            ./publish_release.sh
+            ./publish-release.sh
           else
             echo "No docker images" >> $GITHUB_STEP_SUMMARY
           fi
