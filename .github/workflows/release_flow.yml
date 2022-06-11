@@ -51,14 +51,15 @@ jobs:
           BRANCH_NAME="${{ steps.branch_name.outputs.VALUE }}"
           RELEASE_TYPE="${{ github.event.inputs.type }}"
           TS="$(TZ=GMT date +"%Y-%m-%dT%H_%M_%SZ")"
+          LAST_REL_VERSION=$(git tag -l --sort=-v:refname | grep "^wfrelease-" | head -n 1|\
+                          sed -E "s/wfrelease-([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)-.*/\1/g")
+          [[ "$LAST_REL_VERSION" =~ (.*[^0-9])([0-9]+)$ ]] && NEXT_REL_VERSION="${BASH_REMATCH[1]}$((${BASH_REMATCH[2]} + 1))"
           if [ "${BRANCH_NAME}" == "dev" ]; then
             if [ "${RELEASE_TYPE}" == "Snapshot" ]; then
               TAG="snapshot-${TS}"
               NEXT_VERSION="$(mvn help:evaluate  -Dexpression=project.version -q -DforceStdout)"
             elif [ "${RELEASE_TYPE}" == "QA Release" ]; then
-              REL_VERSION=$(git tag -l --sort=-v:refname | grep "^wfrelease-" | head -n 1|\
-                sed -E "s/wfrelease-([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)-.*/\1/g")
-              if [[ -z "${REL_VERSION}" ]]; then
+              if [[ -z "${LAST_REL_VERSION}" ]]; then
                 echo "No release tags to start ${RELEASE_TYPE}"
                 exit 1
               fi
@@ -66,10 +67,10 @@ jobs:
                 sed -E "s/qarelease-([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+-RC[[:digit:]]+)-.*/\1/g")
               NEXT_VERSION=1
               [[ "$VERSION" =~ (.*-RC)([0-9]+)$ ]] && NEXT_VERSION="$((${BASH_REMATCH[2]} + 1))"
-              if [[ "${VERSION}" = $REL_VERSION* ]]; then
-                NEXT_VERSION="${REL_VERSION}-RC${NEXT_VERSION}"
+              if [[ "${VERSION}" = $NEXT_REL_VERSION* ]]; then
+                NEXT_VERSION="${NEXT_REL_VERSION}-RC${NEXT_VERSION}"
               else
-                NEXT_VERSION="${REL_VERSION}-RC1"
+                NEXT_VERSION="${NEXT_REL_VERSION}-RC1"
               fi
               echo "${NEXT_VERSION}"
               TAG="qarelease-${NEXT_VERSION}-${TS}"
@@ -79,14 +80,11 @@ jobs:
             fi
           elif [ "${BRANCH_NAME}" == "master" ] || [ "${BRANCH_NAME}" == "main" ] || [[ "${BRANCH_NAME}" = "release"* ]]; then
             if [ "${RELEASE_TYPE}" == "Release" ] || [ "${RELEASE_TYPE}" == "Patch Release" ] ; then
-              VERSION=$(git tag -l --sort=-v:refname | grep "^wfrelease-" | head -n 1|\
-                sed -E "s/wfrelease-([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)-.*/\1/g")
-              if [[ -z "${VERSION}" ]]; then
-                echo "No release tags to start ${RELEASE_TYPE}"
+              if [[ -z "${LAST_REL_VERSION}" ]]; then
+                echo "No release tags to start ${RELEASE_TYPE} branch ${BRANCH_NAME}"
                 exit 1
               fi
-              [[ "$VERSION" =~ (.*[^0-9])([0-9]+)$ ]] && NEXT_VERSION="${BASH_REMATCH[1]}$((${BASH_REMATCH[2]} + 1))"
-              TAG="wfrelease-${NEXT_VERSION}-${TS}"
+              TAG="wfrelease-${NEXT_REL_VERSION}-${TS}"
             else
               echo "Illegal branch ${BRANCH_NAME} for ${RELEASE_TYPE}"
               exit 1
@@ -95,7 +93,7 @@ jobs:
               echo "Illegal branch ${BRANCH_NAME} for ${RELEASE_TYPE}"
               exit 1
           fi
-          echo "Tag ${TAG} Next version ${NEXT_VERSION}"
+          echo "Tag ${TAG} Next version ${NEXT_VERSION} Last Release Version: ${LAST_REL_VERSION} Next Release Version"
           echo ::set-output name=VALUE::${TAG}
           echo ::set-output name=NEXT_VERSION::${NEXT_VERSION}
 
