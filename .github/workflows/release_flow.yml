@@ -163,7 +163,7 @@ jobs:
         run: |
           BRANCH_NAME="${{ steps.branch_name.outputs.VALUE }}"
           RELEASE_TYPE="${{ github.event.inputs.type }}"
-          if [ "${BRANCH_NAME}" == "dev" &&  "$RELEASE_TYPE" == "Snapshot"]; then
+          if [ "${BRANCH_NAME}" == "dev" ] &&  [ "$RELEASE_TYPE" == "Snapshot" ]; then
             if [ -f "./publish.sh" ]; then
               mvn spring-boot:build-image -DskipTests=true -Dmaven.test.skip=true
               ./publish.sh
