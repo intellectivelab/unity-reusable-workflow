@@ -93,7 +93,7 @@ jobs:
               echo "Illegal branch ${BRANCH_NAME} for ${RELEASE_TYPE}"
               exit 1
           fi
-          echo "Tag ${TAG} Next version ${NEXT_VERSION} Last Release Version: ${LAST_REL_VERSION} Next Release Version"
+          echo "Tag ${TAG} Next version ${NEXT_VERSION} Last Release Version: ${LAST_REL_VERSION} Next Release Version:${NEXT_REL_VERSION}"
           echo ::set-output name=VALUE::${TAG}
           echo ::set-output name=NEXT_VERSION::${NEXT_VERSION}
 
