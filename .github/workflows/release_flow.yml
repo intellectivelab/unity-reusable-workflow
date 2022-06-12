@@ -162,7 +162,8 @@ jobs:
       - name: Build Docker
         run: |
           BRANCH_NAME="${{ steps.branch_name.outputs.VALUE }}"
-          if [ "${BRANCH_NAME}" == "dev" ]; then
+          RELEASE_TYPE="${{ github.event.inputs.type }}"
+          if [ "${BRANCH_NAME}" == "dev" &&  "$RELEASE_TYPE" == "Snapshot"]; then
             if [ -f "./publish.sh" ]; then
               mvn spring-boot:build-image -DskipTests=true -Dmaven.test.skip=true
               ./publish.sh
