@@ -113,8 +113,8 @@ jobs:
           HAS_DEV_NO_TESTS="${{ steps.mvn_options.outputs.HAS_DEV_NO_TESTS }}"
           echo "Branch: ${BRANCH_NAME}" >> $GITHUB_STEP_SUMMARY
           echo "Release Type: ${RELEASE_TYPE}" >> $GITHUB_STEP_SUMMARY
-          echo "Release Tag: ${RELEASE_TAG}" >> $GITHUB_STEP_SUMMARY
-          echo "Release Version: ${RELEASE_VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "Tag: ${RELEASE_TAG}" >> $GITHUB_STEP_SUMMARY
+          echo "POM Version: ${RELEASE_VERSION}" >> $GITHUB_STEP_SUMMARY
 
       - name: Set release version
         run: |
@@ -167,14 +167,16 @@ jobs:
             if [ -f "./publish.sh" ]; then
               mvn spring-boot:build-image -DskipTests=true -Dmaven.test.skip=true
               ./publish.sh
+              echo "Docker Image: latest" >> $GITHUB_STEP_SUMMARY
             else
-              echo "No docker images publish for ${BRANCH_NAME}" >> $GITHUB_STEP_SUMMARY
+              echo "Docker Image: No (publish.sh missing for ${BRANCH_NAME})" >> $GITHUB_STEP_SUMMARY
             fi
           elif [ -f "./publish-release.sh" ]; then
             mvn spring-boot:build-image -DskipTests=true -Dmaven.test.skip=true
             ./publish-release.sh
+            echo "Docker Image: ${VERSION}" >> $GITHUB_STEP_SUMMARY
           else
-            echo "No docker images publish for ${BRANCH_NAME}" >> $GITHUB_STEP_SUMMARY
+            echo "Docker Image: No (publish-release.sh missing for ${BRANCH_NAME})" >> $GITHUB_STEP_SUMMARY
           fi
         env:
           DOCKER_REGISTRY: 'registry.intellective.com'
