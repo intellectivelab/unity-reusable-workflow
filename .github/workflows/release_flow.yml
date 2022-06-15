@@ -79,12 +79,19 @@ jobs:
               exit 1
             fi
           elif [ "${BRANCH_NAME}" == "master" ] || [ "${BRANCH_NAME}" == "main" ] || [[ "${BRANCH_NAME}" = "release"* ]]; then
-            if [ "${RELEASE_TYPE}" == "Release" ] || [ "${RELEASE_TYPE}" == "Patch Release" ] ; then
+            if [ "${RELEASE_TYPE}" == "Release" ]; then
               if [[ -z "${LAST_REL_VERSION}" ]]; then
                 echo "No release tags to start ${RELEASE_TYPE} branch ${BRANCH_NAME}"
                 exit 1
               fi
               TAG="wfrelease-${NEXT_REL_VERSION}-${TS}"
+              NEXT_VERSION="${NEXT_REL_VERSION}"
+            elif [ "${RELEASE_TYPE}" == "Patch Release" ]; then
+              LAST_PATCH_VERSION=$(git tag -l --sort=-v:refname --merged ${BRANCH_NAME} | grep "^wfrelease-" | head -n 1|\
+                              sed -E "s/wfrelease-([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)-.*/\1/g")
+              [[ "$LAST_PATCH_VERSION" =~ (.*[^0-9])([0-9]+)$ ]] && NEXT_PATCH_VERSION="${BASH_REMATCH[1]}$((${BASH_REMATCH[2]} + 1))"
+              TAG="wfrelease-${NEXT_PATCH_VERSION}-${TS}"
+              NEXT_VERSION="${NEXT_PATCH_VERSION}"
             else
               echo "Illegal branch ${BRANCH_NAME} for ${RELEASE_TYPE}"
               exit 1
@@ -167,14 +174,22 @@ jobs:
             if [ -f "./publish.sh" ]; then
               mvn spring-boot:build-image -DskipTests=true -Dmaven.test.skip=true
               ./publish.sh
-              echo "Docker Image: latest" >> $GITHUB_STEP_SUMMARY
+              if [ $? -eq 0 ]; then
+                echo "Docker Image: latest" >> $GITHUB_STEP_SUMMARY
+              else
+                exit 1
+              fi
             else
               echo "Docker Image: No (publish.sh missing for ${BRANCH_NAME})" >> $GITHUB_STEP_SUMMARY
             fi
           elif [ -f "./publish-release.sh" ]; then
             mvn spring-boot:build-image -DskipTests=true -Dmaven.test.skip=true
             ./publish-release.sh
-            echo "Docker Image: ${VERSION}" >> $GITHUB_STEP_SUMMARY
+            if [ $? -eq 0 ]; then
+              echo "Docker Image: ${VERSION}" >> $GITHUB_STEP_SUMMARY
+            else
+              exit 1
+            fi
           else
             echo "Docker Image: No (publish-release.sh missing for ${BRANCH_NAME})" >> $GITHUB_STEP_SUMMARY
           fi
