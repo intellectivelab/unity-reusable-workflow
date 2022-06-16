@@ -108,6 +108,7 @@ jobs:
         id: mvn_options
         run: |
           echo ::set-output name=HAS_DEV_NO_TESTS::$(mvn help:all-profiles|grep "Profile Id: dev-no-tests"|wc -l)
+          echo ::set-output name=HAS_DOCKER_IMAGE::$([[ -f "./publish.sh" ]] || [[ -f "./publish-release.sh" ]] && echo 1 || echo 0)
           echo ::set-output name=BOM_MODULE::$(mvn help:evaluate  -Dexpression=project.modules[0] -q -DforceStdout| grep -e "-bom$")
 
       - name: Run summary
@@ -157,22 +158,27 @@ jobs:
             fi
           fi
 
-      - name: Build release
+      - name: Build release and image
         run: |
           HAS_DEV_NO_TESTS="${{ steps.mvn_options.outputs.HAS_DEV_NO_TESTS }}"
-          if [ "${HAS_DEV_NO_TESTS}" -eq 0 ]; then
-            mvn -B deploy -DskipTests=true -Dmaven.test.skip=true
-          else
-            mvn -B deploy -P dev-no-tests -Dmaven.test.skip=true -DskipTests=true
+          HAS_DOCKER_IMAGE="${{ steps.mvn_options.outputs.HAS_DOCKER_IMAGE }}"
+          MVN_ARGS=("-B" "deploy")
+          if [ "${HAS_DOCKER_IMAGE}" -eq 1 ]; then
+            MVN_ARGS+=("spring-boot:build-image")
           fi
+          if [ "${HAS_DEV_NO_TESTS}" -eq 0 ]; then
+            MVN_ARGS+=("-DskipTests=true" "-Dmaven.test.skip=true")
+          else
+            MVN_ARGS+=("-Pdev-no-tests")
+          fi
+          mvn "${ARGS[@]}"
 
-      - name: Build Docker
+      - name: Publish Docker Image
         run: |
           BRANCH_NAME="${{ steps.branch_name.outputs.VALUE }}"
           RELEASE_TYPE="${{ github.event.inputs.type }}"
           if [ "${BRANCH_NAME}" == "dev" ] &&  [ "$RELEASE_TYPE" == "Snapshot" ]; then
             if [ -f "./publish.sh" ]; then
-              mvn spring-boot:build-image -DskipTests=true -Dmaven.test.skip=true
               ./publish.sh
               if [ $? -eq 0 ]; then
                 echo "Docker Image: latest" >> $GITHUB_STEP_SUMMARY
@@ -183,7 +189,6 @@ jobs:
               echo "Docker Image: No (publish.sh missing for ${BRANCH_NAME})" >> $GITHUB_STEP_SUMMARY
             fi
           elif [ -f "./publish-release.sh" ]; then
-            mvn spring-boot:build-image -DskipTests=true -Dmaven.test.skip=true
             ./publish-release.sh
             if [ $? -eq 0 ]; then
               echo "Docker Image: ${VERSION}" >> $GITHUB_STEP_SUMMARY
