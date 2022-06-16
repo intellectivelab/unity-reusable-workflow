@@ -171,7 +171,7 @@ jobs:
           else
             MVN_ARGS+=("-Pdev-no-tests")
           fi
-          mvn "${ARGS[@]}"
+          mvn "${MVN_ARGS[@]}"
 
       - name: Publish Docker Image
         run: |
