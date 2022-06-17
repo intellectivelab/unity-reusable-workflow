@@ -45,7 +45,7 @@ jobs:
         id: branch_name
         run: echo ::set-output name=VALUE::${GITHUB_REF_NAME}
 
-      - name: Tag name
+      - name: Calculate tag name and version
         id: tag_name
         run: |
           BRANCH_NAME="${{ steps.branch_name.outputs.VALUE }}"
@@ -53,7 +53,7 @@ jobs:
           TS="$(TZ=GMT date +"%Y-%m-%dT%H_%M_%SZ")"
           LAST_REL_VERSION=$(git tag -l --sort=-v:refname | grep "^wfrelease-" | head -n 1|\
                           sed -E "s/wfrelease-([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)-.*/\1/g")
-          [[ "$LAST_REL_VERSION" =~ (.*[^0-9])([0-9]+)$ ]] && NEXT_REL_VERSION="${BASH_REMATCH[1]}$((${BASH_REMATCH[2]} + 1))"
+          [[ "$LAST_REL_VERSION" =~ (.*\.)([0-9]+)\.([0-9]+)$ ]] && NEXT_REL_VERSION="${BASH_REMATCH[1]}$((${BASH_REMATCH[2]} + 1)).0"
           if [ "${BRANCH_NAME}" == "dev" ]; then
             if [ "${RELEASE_TYPE}" == "Snapshot" ]; then
               TAG="snapshot-${TS}"
