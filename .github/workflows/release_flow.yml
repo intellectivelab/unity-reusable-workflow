@@ -132,9 +132,9 @@ jobs:
           RELEASE_TYPE="${{ github.event.inputs.type }}"
           BOM_MODULE="${{ steps.mvn_options.outputs.BOM_MODULE }}"
           if [ "${RELEASE_TYPE}" != "Snapshot" ]; then
-            mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${{ steps.tag_name.outputs.NEXT_VERSION }}
+            mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${{ steps.tag_name.outputs.NEXT_VERSION }}
             if [[ ! -z "${BOM_MODULE}" ]]; then
-              mvn versions:set -f "./${BOM_MODULE}/pom.xml" -DgenerateBackupPoms=false -DnewVersion=${{ steps.tag_name.outputs.NEXT_VERSION }}
+              mvn -B versions:set -f "./${BOM_MODULE}/pom.xml" -DgenerateBackupPoms=false -DnewVersion=${{ steps.tag_name.outputs.NEXT_VERSION }}
             fi
           fi
 
@@ -143,19 +143,19 @@ jobs:
           RELEASE_TYPE="${{ github.event.inputs.type }}"
           BOM_MODULE="${{ steps.mvn_options.outputs.BOM_MODULE }}"
           if [ "${RELEASE_TYPE}" == "Release" ]; then
-            mvn versions:use-latest-versions \
+            mvn -B versions:use-latest-versions \
               -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
               -DallowSnapshots=false
             if [[ ! -z "${BOM_MODULE}" ]]; then
-              mvn versions:set -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
+              mvn -B versions:set -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
                 -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
                 -DallowSnapshots=false
             fi
           elif [ "${RELEASE_TYPE}" == "Patch Release" ]; then
-            mvn versions:use-latest-versions -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
+            mvn -B versions:use-latest-versions -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
               -DallowSnapshots=false -DallowMajorUpdates=false -DallowMinurUpdates=false -DallowIncrementalUpdates=true
             if [[ ! -z "${BOM_MODULE}" ]]; then
-              mvn versions:set -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
+              mvn -B versions:set -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
                 -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
                 -DallowSnapshots=false -DallowMajorUpdates=false -DallowMinurUpdates=false -DallowIncrementalUpdates=true
             fi
