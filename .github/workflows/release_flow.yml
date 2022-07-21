@@ -147,17 +147,17 @@ jobs:
               -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
               -DallowSnapshots=false
             if [[ ! -z "${BOM_MODULE}" ]]; then
-              mvn -B versions:set -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
+              mvn -B -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
                 -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
                 -DallowSnapshots=false
             fi
           elif [ "${RELEASE_TYPE}" == "Patch Release" ]; then
             mvn -B versions:use-latest-versions -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
-              -DallowSnapshots=false -DallowMajorUpdates=false -DallowMinurUpdates=false -DallowIncrementalUpdates=true
+              -DallowSnapshots=false -DallowMajorUpdates=false -DallowMinorUpdates=false -DallowIncrementalUpdates=true
             if [[ ! -z "${BOM_MODULE}" ]]; then
-              mvn -B versions:set -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
+              mvn -B -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
                 -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
-                -DallowSnapshots=false -DallowMajorUpdates=false -DallowMinurUpdates=false -DallowIncrementalUpdates=true
+                -DallowSnapshots=false -DallowMajorUpdates=false -DallowMinorUpdates=false -DallowIncrementalUpdates=true
             fi
           fi
 
