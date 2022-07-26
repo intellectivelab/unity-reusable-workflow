@@ -138,16 +138,23 @@ jobs:
             fi
           fi
 
+      - name: Purge Unity dependencies from local repo
+        run: |
+          RELEASE_TYPE="${{ github.event.inputs.type }}"
+          if [ "${RELEASE_TYPE}" == "Release" ] || [ "${RELEASE_TYPE}" == "Patch Release" ]; then
+            mvn -B dependency:purge-local-repository \
+            -Dinclude="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm.*" \
+            -Dverbose -DactTransitive=false -DreResolve=false
+          fi
+
       - name: Set dependencies
         run: |
-          cat /home/runner/.m2/settings.xml
-          for f in /home/runner/.m2/repository/com/intellective/unity/topology/topology-client/*.*; do if [[ -f "$f" ]]; then echo "*** $f"; cat "$f"; fi; done
           RELEASE_TYPE="${{ github.event.inputs.type }}"
           BOM_MODULE="${{ steps.mvn_options.outputs.BOM_MODULE }}"
           if [ "${RELEASE_TYPE}" == "Release" ]; then
             mvn -B versions:use-latest-versions \
               -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
-              -DallowSnapshots=false --debug
+              -DallowSnapshots=false
             if [[ ! -z "${BOM_MODULE}" ]]; then
               mvn -B -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
                 -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
