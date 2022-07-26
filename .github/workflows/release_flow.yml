@@ -145,7 +145,7 @@ jobs:
           if [ "${RELEASE_TYPE}" == "Release" ]; then
             mvn -B versions:use-latest-versions \
               -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
-              -DallowSnapshots=false --debug
+              -DallowSnapshots=false
             if [[ ! -z "${BOM_MODULE}" ]]; then
               mvn -B -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
                 -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
