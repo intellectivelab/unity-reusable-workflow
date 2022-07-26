@@ -140,12 +140,14 @@ jobs:
 
       - name: Set dependencies
         run: |
+          cat /home/runner/.m2/settings.xml
+          for f in /home/runner/.m2/repository/com/intellective/unity/topology/topology-client/*.*; do [[ -d "$f" ]] || echo "$f"; cat "$f"; done
           RELEASE_TYPE="${{ github.event.inputs.type }}"
           BOM_MODULE="${{ steps.mvn_options.outputs.BOM_MODULE }}"
           if [ "${RELEASE_TYPE}" == "Release" ]; then
             mvn -B versions:use-latest-versions \
               -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
-              -DallowSnapshots=false
+              -DallowSnapshots=false --debug
             if [[ ! -z "${BOM_MODULE}" ]]; then
               mvn -B -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
                 -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
