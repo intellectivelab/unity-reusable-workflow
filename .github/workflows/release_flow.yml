@@ -141,7 +141,7 @@ jobs:
       - name: Set dependencies
         run: |
           cat /home/runner/.m2/settings.xml
-          for f in /home/runner/.m2/repository/com/intellective/unity/topology/topology-client/*.*; do [[ -d "$f" ]] || echo "$f"; cat "$f"; done
+          for f in /home/runner/.m2/repository/com/intellective/unity/topology/topology-client/*.*; do [[ -f "$f" ]] || echo "$f"; cat "$f"; done
           RELEASE_TYPE="${{ github.event.inputs.type }}"
           BOM_MODULE="${{ steps.mvn_options.outputs.BOM_MODULE }}"
           if [ "${RELEASE_TYPE}" == "Release" ]; then
