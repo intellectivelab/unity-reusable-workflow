@@ -10,9 +10,15 @@ on:
         description: 'Java version for running maven'
         required: false
         type: string
+    outputs:
+      release_version:
+        description: "Release version"
+        value: ${{ jobs.release.outputs.release_version }}
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ steps.tag_name.outputs.NEXT_VERSION }}
     steps:
       - name: Inputs
         run: |
