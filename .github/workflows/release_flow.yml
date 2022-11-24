@@ -169,11 +169,11 @@ jobs:
           elif [ "${RELEASE_TYPE}" == "QA Release" ]; then
             mvn -B versions:use-latest-versions \
               -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
-              -DallowSnapshots=true -Dverbose
+              -DallowSnapshots=false -Dverbose
             if [[ ! -z "${BOM_MODULE}" ]]; then
               mvn -B -f "./${BOM_MODULE}/pom.xml" versions:use-latest-versions \
                 -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
-                -DallowSnapshots=true -Dverbose
+                -DallowSnapshots=false -Dverbose
             fi
           elif [ "${RELEASE_TYPE}" == "Patch Release" ]; then
             mvn -B versions:use-latest-versions -Dincludes="com.intellective.*,com.vspace.*,com.vegaecm.*,com.vignette.idm" \
