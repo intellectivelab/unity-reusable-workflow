@@ -193,15 +193,15 @@ jobs:
           MVN_ARGS=("-B" "deploy")
           if [ "${HAS_DOCKER_IMAGE}" -eq 1 ]; then
             MVN_ARGS+=("spring-boot:build-image")
+            if [ "${HAS_IMAGE_PROFILE}" -eq 1 ]; then
+              MVN_ARGS+=("-Pimage")
+            fi
           fi
 
           if [ "${HAS_DEV_NO_TESTS_PROFILE}" -eq 0 ]; then
             MVN_ARGS+=("-DskipTests=true" "-Dmaven.test.skip=true")
           else
             MVN_ARGS+=("-Pdev-no-tests")
-          fi
-          if [ "${HAS_IMAGE_PROFILE}" -eq 1 ]; then
-            MVN_ARGS+=("-Pimage")
           fi
           mvn "${MVN_ARGS[@]}"
 
